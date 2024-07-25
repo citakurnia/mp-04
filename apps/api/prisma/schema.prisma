@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -10,12 +7,300 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Sample {
-  id        Int      @id @default(autoincrement())
-  name      String
-  code      String   @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model User {
+  id             Int           @id @default(autoincrement())
+  role           Role
+  referral       String        @unique @db.VarChar(8)
+  referrerId     Int?
+  email          String        @unique
+  password       String
+  firstname      String
+  lastname       String
+  avatarFilename String
+  isVerified     Boolean
+  createdAt      DateTime
+  modifiedAt     DateTime
+  // Relation fields
+  referrer       User?         @relation("referral", fields: [referrerId], references: [id])
+  referees       User[]        @relation("referral")
+  points         Point[]
+  coupons        Coupon[]
+  transactions   Transaction[]
+  tickets        Ticket[]
+  event          Event[]
+  promotion      Promotion[]
 
-  @@map("samples") // if you want to use snake_case format
+  @@map("user")
+}
+
+enum Role {
+  PARTICIPANT
+  ORGANIZER
+
+  @@map("role")
+}
+
+model Point {
+  id        Int          @id @default(autoincrement())
+  userId    Int
+  value     Int
+  used      Int          @default(0)
+  createdAt DateTime
+  expiredAt DateTime
+  // Relation fields
+  user      User         @relation(fields: [userId], references: [id])
+  usages    PointUsage[]
+
+  @@map("point")
+}
+
+model PointUsage {
+  id            Int         @id @default(autoincrement())
+  transactionId Int
+  pointId       Int
+  pointUsed     Int
+  createdAt     DateTime
+  // Relation fields
+  transaction   Transaction @relation(fields: [transactionId], references: [id])
+  point         Point       @relation(fields: [pointId], references: [id])
+
+  @@map("point_usage")
+}
+
+model Coupon {
+  id          Int           @id @default(autoincrement())
+  userId      Int
+  promotionId Int
+  status      CouponStatus  @default(UNUSED)
+  createdAt   DateTime
+  expiredAt   DateTime
+  // Relation fields
+  user        User          @relation(fields: [userId], references: [id])
+  promotion   Promotion     @relation(fields: [promotionId], references: [id])
+  usages      CouponUsage[]
+
+  @@map("coupon")
+}
+
+enum CouponStatus {
+  UNUSED // Gained but not yet used
+  USED // Transaction complete, coupon used
+  REVOKED // Coupon used but transaction failed, will be converted to UNUSED
+
+  @@map("coupon_status")
+}
+
+model CouponUsage {
+  id            Int         @id @default(autoincrement())
+  transactionId Int
+  couponId      Int
+  createdAt     DateTime
+  // Relation fields
+  transaction   Transaction @relation(fields: [transactionId], references: [id])
+  coupon        Coupon      @relation(fields: [couponId], references: [id])
+
+  @@map("coupon_usage")
+}
+
+model Event {
+  id           Int            @id @default(autoincrement())
+  organizerId  Int
+  name         String
+  type         EventType
+  categoryId   Int
+  cityId       Int
+  description  String         @db.Text
+  photoPoster  String
+  address      String
+  eventTime    DateTime
+  maxBuy       Int
+  createdAt    DateTime
+  cancelled    Boolean        @default(false)
+  // Relation fields
+  organizer    User           @relation(fields: [organizerId], references: [id])
+  category     Category       @relation(fields: [categoryId], references: [id])
+  city         City           @relation(fields: [cityId], references: [id])
+  seatCategory SeatCategory[]
+  promotions   Promotion[]
+
+  @@map("event")
+}
+
+enum EventType {
+  PAID
+  FREE
+}
+
+model SeatCategory {
+  id       Int      @id @default(autoincrement())
+  eventId  Int
+  name     String
+  maxSeats Int
+  price    Float
+  event    Event    @relation(fields: [eventId], references: [id])
+  ticket   Ticket[]
+}
+
+model Category {
+  id     Int     @id @default(autoincrement())
+  name   String
+  // Relation fields
+  events Event[]
+
+  @@map("category")
+}
+
+model City {
+  id     Int     @id @default(autoincrement())
+  name   String
+  // Relation fields
+  events Event[]
+
+  @@map("city")
+}
+
+model Ticket {
+  id               Int               @id @default(autoincrement())
+  seatCategoryId   Int
+  transactionId    Int?
+  userId           Int
+  name             String
+  status           TicketStatus
+  attendance       Boolean?
+  // Relation fields
+  seatCategory     SeatCategory      @relation(fields: [seatCategoryId], references: [id])
+  user             User              @relation(fields: [userId], references: [id])
+  transaction      Transaction?      @relation(fields: [transactionId], references: [id])
+  review           Review?
+  attendeeReferral AttendeeReferral? // only for payerId
+  updates          TicketUpdate[]
+
+  @@map("ticket")
+}
+
+model AttendeeReferral {
+  id         Int      @id @default(autoincrement())
+  ticketId   Int      @unique
+  referral   String   @unique
+  isUsed     Boolean  @default(false)
+  createdAt  DateTime
+  startedAt  DateTime
+  finishedAt DateTime
+  // Relation fields
+  ticket     Ticket   @relation(fields: [ticketId], references: [id])
+
+  @@map("attendee_referral")
+}
+
+enum TicketStatus {
+  NONEXISTENT
+  PENDING
+  ISSUED
+  CANCELLED_BY_USER
+  CANCELLED_BY_ORGANIZER
+
+  @@map("ticket_status")
+}
+
+model TicketUpdate {
+  id        Int          @id @default(autoincrement())
+  ticketId  Int
+  before    TicketStatus
+  after     TicketStatus
+  createdAt DateTime
+  // Relation fields
+  ticket    Ticket       @relation(fields: [ticketId], references: [id])
+
+  @@map("ticket_update")
+}
+
+model Transaction {
+  id          Int                 @id @default(autoincrement())
+  payerId     Int
+  paidAmount  Float
+  createdAt   DateTime
+  status      TransactionStatus
+  // Relation fields
+  tickets     Ticket[]
+  payer       User                @relation(fields: [payerId], references: [id])
+  usedPoints  PointUsage[]
+  usedCoupons CouponUsage[]
+  updates     TransactionUpdate[]
+
+  @@map("transaction")
+}
+
+enum TransactionStatus {
+  NONEXISTENT
+  PENDING
+  COMPLETED
+  CANCELLED
+  EXPIRED
+
+  @@map("transaction_status")
+}
+
+model TransactionUpdate {
+  id            Int               @id @default(autoincrement())
+  transactionId Int
+  before        TransactionStatus
+  afterStatus   TransactionStatus
+  createdAt     DateTime
+  // Relation fields
+  transaction   Transaction       @relation(fields: [transactionId], references: [id])
+
+  @@map("transaction_update")
+}
+
+model Review {
+  id       Int    @id @default(autoincrement())
+  ticketId Int    @unique
+  rating   Int
+  content  String @db.Text
+  // Relation fields
+  ticket   Ticket @relation(fields: [ticketId], references: [id])
+
+  @@map("review")
+}
+
+model Promotion {
+  id                    Int           @id @default(autoincrement())
+  organizerId           Int
+  eventId               Int?
+  name                  String
+  description           String
+  createdAt             DateTime
+  startedAt             DateTime
+  finishedAt            DateTime
+  type                  PromotionType
+  // Base discounts
+  discount              Float?
+  // Coupons or points
+  rewardType            RewardType?
+  rewardValue           Float?
+  rewardQuota           Int?
+  rewardDurationSeconds Int?
+  // Relation fields
+  organizer             User          @relation(fields: [organizerId], references: [id])
+  event                 Event?        @relation(fields: [eventId], references: [id])
+  coupons               Coupon[]
+
+  @@map("promotion")
+}
+
+enum PromotionType {
+  SIGN_UP_BONUS_REFEREE
+  SIGN_UP_BONUS_REFERRER
+  ATTENDEE_REFERRAL
+  TIME_BASED_DISCOUNT
+
+  @@map("promotion_type")
+}
+
+enum RewardType {
+  COUPON_PERCENT
+  COUPON_FLAT
+  POINTS
+
+  @@map("reward_type")
 }
