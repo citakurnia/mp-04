@@ -53,8 +53,8 @@ export class AuthController {
 
       res
         .status(200)
-        .cookie('access-token', result)
-        .cookie('refresh-token', result)
+        .cookie('access-token', result, { maxAge: 1000 * 60 * 60 })
+        .cookie('refresh-token', result, { maxAge: 1000 * 60 * 60 * 24 })
         .json({
           message: 'Login success',
         });
@@ -72,11 +72,9 @@ export class AuthController {
       const { email } = req.user as User;
 
       const result = await authAction.refreshTokenAction(email);
-
       res
         .status(200)
-        .cookie('access-token', result)
-        .cookie('refresh-token', result)
+        .cookie('access-token', result, { maxAge: 1000 * 60 * 60 })
         .json({
           message: 'Refresh token success',
           access_token: result,

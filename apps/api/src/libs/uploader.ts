@@ -8,6 +8,8 @@ import type { FileFilterCallback } from 'multer';
 type DestinationCallback = (error: Error | null, destination: string) => void;
 type FileNameCallback = (error: Error | null, filename: string) => void;
 
+export const upload = multer();
+
 export function uploader(
   filePrefix: string,
   size: number,

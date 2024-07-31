@@ -8,6 +8,7 @@ import parseJWT from './utils/parseJwt';
 export async function middleware(request: NextRequest) {
   const { pathname }: { pathname: string } = request.nextUrl;
   const token = request.cookies.get('refresh-token')?.value;
+  console.log(`token: ${token}`);
   const response = NextResponse.next();
 
   function redirectUser(role: string) {
@@ -36,7 +37,6 @@ export async function middleware(request: NextRequest) {
       // set new access-token upon web refresh
       response.cookies.set('access-token', res.data.access_token, {
         httpOnly: false,
-        maxAge: 60 * 60,
       });
     } catch (err) {
       if (err instanceof AxiosError) {
@@ -44,7 +44,9 @@ export async function middleware(request: NextRequest) {
           'Token validation failed:',
           err.response?.data || err.message,
         );
+        return NextResponse.redirect(new URL('login', request.url));
       }
+      console.log(err);
     }
 
     const user: User = parseJWT(token);
@@ -56,7 +58,6 @@ export async function middleware(request: NextRequest) {
 
     return response;
   } else if (pathname.startsWith('/organizer') && token == undefined) {
-    // console.log('No user logged');
     return NextResponse.redirect(new URL('/login', request.url));
   }
 }

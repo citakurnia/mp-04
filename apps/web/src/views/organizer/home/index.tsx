@@ -12,23 +12,23 @@ import {
   Typography,
   useMediaQuery,
 } from '@mui/material';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import KeyboardDoubleArrowRightIcon from '@mui/icons-material/KeyboardDoubleArrowRight';
 import { useRouter } from 'next/navigation';
 
 export default function OrganizerHomeView() {
-  const dispatch = useAppDispatch();
   const isMdUp = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'));
   const router = useRouter();
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
-    const loginUser = async () => {
-      await keepLogin()(dispatch);
-    };
-
-    loginUser();
+    setIsMounted(true);
   });
+
+  if (!isMounted) {
+    return null;
+  }
 
   return (
     <PageWrapper sx={{ backgroundColor: 'secondary.light' }}>
@@ -44,6 +44,7 @@ export default function OrganizerHomeView() {
           >
             <Typography
               variant="h2"
+              fontSize={isMdUp ? '56px' : '45px'}
               sx={{ textAlign: 'start', color: 'secondary.light' }}
             >
               Kick off the creation of your dream event!
@@ -67,7 +68,7 @@ export default function OrganizerHomeView() {
               >
                 <AddCircleIcon />
                 <Typography
-                  variant="h5"
+                  variant={isMdUp ? 'h5' : 'h6'}
                   sx={{
                     padding: '0.5rem',
                     paddingLeft: '1rem',
@@ -92,7 +93,7 @@ export default function OrganizerHomeView() {
                   sx={{
                     color: 'white',
                     '&:hover': {
-                      color: 'secondary.main', // Hover color
+                      color: 'secondary.main',
                     },
                   }}
                 >

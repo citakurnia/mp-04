@@ -81,10 +81,17 @@ export class EventController {
       const eventIdNum = Number(eventId);
 
       await eventAction.verifyEventOrganizer(id, eventIdNum);
-      const { promotions } = req.body as PromotionInput;
+      const { promotions } = req.body;
 
+      const promotionArr: Array<PromotionCreateItems> = JSON.parse(promotions);
+
+      if (!Array.isArray(promotionArr)) {
+        throw new HttpException(501, 'Promotions must be an array');
+      }
+
+      console.log(promotionArr);
       const result = await eventAction.createPromotions(
-        promotions,
+        promotionArr,
         eventIdNum,
         id,
       );

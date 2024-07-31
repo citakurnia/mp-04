@@ -35,23 +35,6 @@ export default function InnerForm(props: FormikProps<CreateFormValues>) {
     setFieldValue,
   } = props;
 
-  //   function handleSubmitForm() {
-  //     if (values.type == EventInputType.FREE) {
-  //       setFieldValue('seatCategories', [
-  //         { name: 'Free', price: 0, maxSeats: values.seatCategories[0].maxSeats },
-  //       ]);
-  //     } else if (values.type == EventInputType['PAID & FREE SEATING']) {
-  //       setFieldValue('seatCategories', [
-  //         {
-  //           name: 'Paid & Free Seating',
-  //           price: values.seatCategories[0].price,
-  //           maxSeats: values.seatCategories[0].maxSeats,
-  //         },
-  //       ]);
-  //     }
-  //     handleSubmit();
-  //   }
-
   return (
     <Box width={{ xs: '350px', md: '450px' }}>
       <Form onSubmit={handleSubmit}>
@@ -78,7 +61,7 @@ export default function InnerForm(props: FormikProps<CreateFormValues>) {
 
           <FormControl fullWidth>
             <InputLabel>Type</InputLabel>
-            <Field name="type" as="select">
+            <Field name="type">
               {({ field }: { field: any }) => (
                 <Select
                   {...field}
@@ -101,7 +84,7 @@ export default function InnerForm(props: FormikProps<CreateFormValues>) {
 
           <FormControl fullWidth>
             <InputLabel>Category</InputLabel>
-            <Field name="categoryId" as="select">
+            <Field name="categoryId">
               {({ field }: { field: any }) => (
                 <Select
                   {...field}
@@ -124,7 +107,7 @@ export default function InnerForm(props: FormikProps<CreateFormValues>) {
 
           <FormControl fullWidth>
             <InputLabel>City</InputLabel>
-            <Field name="cityId" as="select">
+            <Field name="cityId">
               {({ field }: { field: any }) => (
                 <Select
                   {...field}

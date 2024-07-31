@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Box, Container, Typography, Stack } from '@mui/material';
 
 import { useAppDispatch, useAppSelector } from '@/libs/hooks';
@@ -8,19 +8,18 @@ import { keepLogin } from '@/_middlewares/authMiddleware';
 import PageWrapper from '../global/component/pageWrapper';
 
 const HomeView = () => {
-  const dispatch = useAppDispatch();
   const { status, user } = useAppSelector((state) => state.auth);
-
-  useEffect(() => {
-    const loginUser = async () => {
-      await keepLogin()(dispatch);
-    };
-
-    loginUser();
-  });
+  const [isMounted, setIsMounted] = useState(false);
 
   const avatarUrl = `${process.env.IMAGE_URL}/avatars/${user.avatar}`;
 
+  useEffect(() => {
+    setIsMounted(true);
+  });
+
+  if (!isMounted) {
+    return null;
+  }
   return (
     <PageWrapper>
       <Container>

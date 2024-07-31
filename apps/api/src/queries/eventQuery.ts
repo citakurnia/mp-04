@@ -48,14 +48,64 @@ class EventQuery {
   ): Promise<Array<Promotion>> {
     try {
       const result = await prisma.$transaction(async (prisma) => {
+        let attendeeCount = 0;
+        const timeBasedStartAt: Array<Date> = [];
+        const timeBasedFinishAt: Array<Date> = [];
+
+        function checkOverlap(date: Date, index: number) {
+          if (
+            date > timeBasedStartAt[index] &&
+            date < timeBasedFinishAt[index]
+          ) {
+            throw new HttpException(
+              502,
+              'Invalid date, time-based timeline overlap',
+            );
+          }
+        }
+
         const createdPromotions = await Promise.all(
           promotions.map(async (promotion): Promise<Promotion> => {
-            // if promotion type = referral, no no addy
-            // if promotion type = attendee, one only, no no addy
-            // check date
-            // if promotion type = attendee, no isi discount
-            // coupon percent, value < 100
-            // if promotion type = time_based, discount must, no isi rewardtype, value, quota, duration
+            if (promotion.type == $Enums.PromotionType.ATTENDEE_REFERRAL) {
+              attendeeCount++;
+            }
+
+            if (attendeeCount > 1) {
+              throw new HttpException(
+                502,
+                "Can't add more than 1 attendee promotion",
+              );
+            }
+
+            if (promotion.startedAt >= promotion.finishedAt) {
+              throw new HttpException(
+                505,
+                'Start date is greater or equal to finish date',
+              );
+            }
+
+            if (
+              (promotion.type == $Enums.PromotionType.SIGN_UP_BONUS_REFEREE ||
+                promotion.type ==
+                  $Enums.PromotionType.SIGN_UP_BONUS_REFERRER) &&
+              organizerId !== 1
+            ) {
+              throw new HttpException(
+                502,
+                "You're not allowed to add on this type of promotion",
+              );
+            }
+
+            if (promotion.type == $Enums.PromotionType.TIME_BASED_DISCOUNT) {
+              timeBasedStartAt.map((_, index) => {
+                checkOverlap(promotion.startedAt, index);
+                checkOverlap(promotion.finishedAt, index);
+              });
+
+              timeBasedStartAt.push(promotion.startedAt);
+              timeBasedFinishAt.push(promotion.finishedAt);
+            }
+
             return await prisma.promotion.create({
               data: {
                 ...promotion,
@@ -80,6 +130,24 @@ class EventQuery {
     }
   }
 
+  public async checkPromotionsByEventId(
+    eventId: number,
+  ): Promise<Array<{ id: number }>> {
+    try {
+      const promotions = await prisma.promotion.findMany({
+        where: {
+          eventId: eventId,
+        },
+        select: {
+          id: true,
+        },
+      });
+
+      return promotions;
+    } catch (err) {
+      throw err;
+    }
+  }
   public async findOrganizerIdbyEventId(eventId: number): Promise<number> {
     try {
       const user = await prisma.event.findFirst({
