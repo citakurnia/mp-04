@@ -45,14 +45,7 @@ export class EventRoute implements RouteItems {
       this.event.getEvents,
     );
     // single event details for front-end
-    this.router.get(`${this.path}/:eventId`, this.event.getEvent);
-    // single event details for dashboard
-    this.router.get(
-      `${this.path}/dashboard/:eventId`,
-      authenticateToken,
-      authorizeOrganizerRole,
-      // this.event.getEvent, TODO
-    );
+    this.router.get(`${this.path}/detail/:eventId`, this.event.getEvent);
     this.router.delete(`${this.path}/:eventId`);
   }
 }

@@ -170,17 +170,14 @@ class EventQuery {
 
   public async getEventDetailsById(eventId: number): Promise<Event> {
     try {
-      const now = new Date();
       const event = await prisma.event.findFirst({
         where: {
           id: eventId,
-          eventTime: {
-            gte: now,
-          },
         },
         include: {
           seatCategory: {
             select: {
+              id: true,
               name: true,
               maxSeats: true,
               price: true,
@@ -198,7 +195,18 @@ class EventQuery {
               name: true,
             },
           },
-          promotions: true,
+          promotions: {
+            select: {
+              name: true,
+              description: true,
+              startedAt: true,
+              finishedAt: true,
+              type: true,
+              discount: true,
+              rewardType: true,
+              rewardQuota: true,
+            },
+          },
         },
       });
 
