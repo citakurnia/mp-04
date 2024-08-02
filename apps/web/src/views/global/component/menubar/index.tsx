@@ -8,11 +8,14 @@ import {
   Typography,
   Divider,
   Stack,
+  Avatar,
 } from '@mui/material';
 import { useMediaQuery } from '@mui/material';
 import { usePathname, useRouter } from 'next/navigation';
-import { ReactNode } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import AssessmentIcon from '@mui/icons-material/Assessment';
+import { useAppSelector } from '@/libs/hooks';
+import instance from '@/utils/axiosIntance';
 
 export default function DashboardPageWrapper({
   children,
@@ -25,6 +28,29 @@ export default function DashboardPageWrapper({
   );
   const router = useRouter();
   const pathname = usePathname();
+  const { user } = useAppSelector((state) => state.auth);
+  const [isMounted, setIsMounted] = useState(false);
+  const [totalPoints, setTotalPoints] = useState(0);
+
+  async function fetchData() {
+    try {
+      const result = await instance().get(
+        `${process.env.API_URL}/rewards/totalpoints`,
+      );
+      setTotalPoints(result.data.data);
+      setIsMounted(true);
+    } catch (err: any) {
+      console.log('Data is not fetched');
+    }
+  }
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  if (!isMounted) {
+    return null;
+  }
 
   const dashboardMenuItems = [
     { name: 'My Event', href: '/organizer/dashboard' },
@@ -34,7 +60,7 @@ export default function DashboardPageWrapper({
   ];
 
   const participantMenuItems = [
-    { name: 'Point', href: '/point' },
+    { name: 'Reward', href: '/reward' },
     { name: 'Ticket', href: '/ticket' },
     { name: 'Order', href: '/order' },
     { name: 'Account', href: '/account' },
@@ -43,6 +69,8 @@ export default function DashboardPageWrapper({
   const menuItems = pathname.startsWith('/organizer')
     ? dashboardMenuItems
     : participantMenuItems;
+
+  const avatarUrl = `${process.env.IMAGE_URL}/avatars/${user?.avatar}`;
 
   return (
     <Grid
@@ -71,10 +99,44 @@ export default function DashboardPageWrapper({
               alignItems="center"
               p={2.5}
             >
-              <AssessmentIcon sx={{ fontSize: '28px' }} />
-              <Typography variant="h5" fontWeight="700">
-                DASHBOARD
-              </Typography>
+              {pathname.startsWith('/organizer') ? (
+                <>
+                  <AssessmentIcon sx={{ fontSize: '28px' }} />
+                  <Typography variant="h5" fontWeight="700">
+                    DASHBOARD
+                  </Typography>
+                </>
+              ) : (
+                <Box minWidth="100%">
+                  <Stack justifyContent="center" alignItems="center">
+                    <Avatar
+                      src={avatarUrl}
+                      sx={{ width: 70, height: 70, marginBottom: '10px' }}
+                    />
+                    <Typography
+                      style={{ marginLeft: '10px', fontWeight: '700' }}
+                    >
+                      {user.firstname + ' ' + user.lastname}
+                    </Typography>
+                    <Typography fontSize="14px">{user.email}</Typography>
+                    <Box height="10px" />
+                    <Typography
+                      fontSize="14px"
+                      sx={{
+                        backgroundColor: 'secondary.main',
+                        borderRadius: '10px',
+                      }}
+                      padding={0.8}
+                    >
+                      Points: {totalPoints}
+                    </Typography>
+                    <Box height="8px" />
+                    <Typography fontSize="14px">
+                      Referral Code: <b>{user.referral.toUpperCase()}</b>
+                    </Typography>
+                  </Stack>
+                </Box>
+              )}
             </Stack>
             <Divider
               sx={{ backgroundColor: 'secondary.light' }}

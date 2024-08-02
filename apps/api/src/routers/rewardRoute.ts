@@ -26,5 +26,10 @@ export class RewardRoute implements RouteItems {
       authenticateToken,
       this.reward.getPoints,
     );
+    this.router.get(
+      `${this.path}/totalpoints`,
+      authenticateToken,
+      this.reward.getTotalPoints,
+    );
   }
 }

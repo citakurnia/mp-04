@@ -60,7 +60,7 @@ function Navbar() {
   };
 
   const participantMenuItems = [
-    { name: 'Point', href: '/point' },
+    { name: 'Reward', href: '/reward' },
     { name: 'Ticket', href: '/ticket' },
     { name: 'Order', href: '/order' },
     { name: 'Account', href: '/account' },
