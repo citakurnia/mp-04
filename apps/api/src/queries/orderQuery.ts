@@ -69,7 +69,7 @@ class OrderQuery {
   public async getPaginatedTransactionsForEvent(
     eventId: number,
     page: number = 1,
-    pageSize: number = 12,
+    pageSize: number = 15,
   ): Promise<Array<TransactionItems>> {
     try {
       const skip = (page - 1) * pageSize;
@@ -113,6 +113,8 @@ class OrderQuery {
     userId: number,
     page: number = 1,
     pageSize: number = 12,
+    eventId: string,
+    sortBy: string,
   ): Promise<
     Array<{
       transaction: TransactionItems;
@@ -129,7 +131,10 @@ class OrderQuery {
         },
       });
 
-      const eventIds = events.map((event) => event.id);
+      let eventIds = events.map((event) => event.id);
+      if (eventId !== 'None') {
+        eventIds = [Number(eventId)];
+      }
 
       const transactions = await prisma.transaction.findMany({
         where: {
@@ -144,7 +149,7 @@ class OrderQuery {
           },
         },
         orderBy: {
-          createdAt: 'desc',
+          createdAt: sortBy == 'desc' ? 'desc' : 'asc',
         },
         include: {
           tickets: {

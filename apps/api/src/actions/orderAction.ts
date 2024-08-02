@@ -35,12 +35,21 @@ class OrderAction {
     userId: number,
     page: number,
     pageSize: number,
-  ): Promise<Array<TransactionItems>> {
+    eventId: string,
+    sortBy: string,
+  ): Promise<
+    Array<{
+      transaction: TransactionItems;
+      eventId: number;
+    }>
+  > {
     try {
-      const result = await orderQuery.getPaginatedTransactionsForEvent(
+      const result = await orderQuery.getPaginatedAllTransactionsForUser(
         userId,
         page,
         pageSize,
+        eventId,
+        sortBy,
       );
 
       return result;
@@ -53,15 +62,10 @@ class OrderAction {
     eventId: number,
     page: number,
     pageSize: number,
-  ): Promise<
-    Array<{
-      transaction: TransactionItems;
-      eventId: number;
-    }>
-  > {
+  ): Promise<Array<TransactionItems>> {
     try {
-      const result = await orderQuery.getPaginatedAllTransactionsForUser(
-        eventId,
+      const result = await orderQuery.getPaginatedTransactionsForEvent(
+        Number(eventId),
         page,
         pageSize,
       );

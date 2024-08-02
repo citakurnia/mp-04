@@ -88,7 +88,7 @@ export default function TicketTable({
                         <TableCell
                           key={column.id}
                           align={column.align}
-                          sx={{ backgroundColor: 'primary.light' }}
+                          // sx={{ backgroundColor: 'primary.light' }}
                         >
                           {column.id == 'attendance' && value === true ? (
                             <>Yes</>

@@ -52,11 +52,13 @@ export class OrderController {
   ): Promise<void> {
     try {
       const { id } = req.user as User;
-      const { page = 1, pageSize = 12 } = req.query;
+      const { page = 1, pageSize = 15, eventId, sortBy } = req.query;
       const result = await orderAction.getPaginatedAllTransactions(
         id,
         Number(page),
         Number(pageSize),
+        String(eventId),
+        String(sortBy),
       );
 
       res.status(200).json({
@@ -75,7 +77,7 @@ export class OrderController {
   ): Promise<void> {
     try {
       const { id } = req.user as User;
-      const { page = 1, pageSize = 12 } = req.query;
+      const { page = 1, pageSize = 15 } = req.query;
       const { eventId } = req.params;
 
       await eventAction.verifyEventOrganizer(id, Number(eventId));

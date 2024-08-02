@@ -1,6 +1,6 @@
 import EventDetailsView from '@/views/organizer/eventDetails';
 
-export default function CreatePromotionPage({
+export default function EventDetailsPage({
   params,
 }: {
   params: { slug: string };

@@ -35,9 +35,9 @@ export class OrderRoute implements RouteItems {
       authorizeOrganizerRole,
       this.order.getAllTransactions,
     );
-    // GET all transaction per event
+    // GET all transaction per event paginated
     this.router.get(
-      `${this.path}/transactions/:eventId`,
+      `${this.path}/transactions/event/:eventId`,
       authenticateToken,
       authorizeOrganizerRole,
       this.order.getEventTransactions,
