@@ -8,6 +8,7 @@ export type User = {
   isVerified: boolean;
   role: $Enums.Role;
   avatar: string;
+  referral: string;
 };
 
 declare global {

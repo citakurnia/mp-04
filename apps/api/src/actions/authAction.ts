@@ -89,6 +89,7 @@ class AuthAction {
         isVerified: findUser.isVerified,
         role: findUser.role,
         avatar: findUser.avatarFilename,
+        referral: findUser.referral,
       };
 
       const token = sign(payload, String(API_KEY), { expiresIn: '1hr' });
@@ -115,6 +116,7 @@ class AuthAction {
         isVerified: findUser.isVerified,
         role: findUser.role,
         avatar: findUser.avatarFilename,
+        referral: findUser.referral,
       };
 
       const token = sign(payload, String(API_KEY), { expiresIn: '1hr' });

@@ -9,6 +9,7 @@ type User = {
   isVerified: boolean;
   avatar: string;
   role: Role | null;
+  referral: string;
 };
 
 type Status = {
@@ -29,6 +30,7 @@ const initialState: Auth = {
     lastname: '',
     firstname: '',
     role: null,
+    referral: '',
   },
   status: {
     isLogin: false,

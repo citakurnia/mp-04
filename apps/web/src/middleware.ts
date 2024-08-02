@@ -4,6 +4,7 @@ import instance from './utils/axiosIntance';
 import { User } from './interfaces/userInterface';
 import { Role } from './views/register/types';
 import parseJWT from './utils/parseJwt';
+import { deleteCookie } from 'cookies-next';
 
 export async function middleware(request: NextRequest) {
   const { pathname }: { pathname: string } = request.nextUrl;
@@ -19,6 +20,8 @@ export async function middleware(request: NextRequest) {
         new URL('/organizer/dashboard', request.url),
       );
     } else {
+      deleteCookie('access-token');
+      deleteCookie('refresh-token');
       return NextResponse.redirect(new URL('/login', request.url));
     }
   }
@@ -44,7 +47,6 @@ export async function middleware(request: NextRequest) {
           'Token validation failed:',
           err.response?.data || err.message,
         );
-        return NextResponse.redirect(new URL('login', request.url));
       }
       console.log(err);
     }
@@ -58,7 +60,13 @@ export async function middleware(request: NextRequest) {
 
     return response;
   } else if (pathname.startsWith('/organizer') && token == undefined) {
-    return NextResponse.redirect(new URL('/login', request.url));
+    const responseWithClearCookies = NextResponse.redirect(
+      new URL('/login', request.url),
+    );
+    responseWithClearCookies.cookies.delete('refresh-token');
+    responseWithClearCookies.cookies.delete('access-token');
+
+    return responseWithClearCookies;
   }
 }
 
