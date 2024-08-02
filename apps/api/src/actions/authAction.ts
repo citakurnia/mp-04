@@ -51,7 +51,7 @@ class AuthAction {
           );
           queryInput.referrerId = referrerId;
         } catch (err) {
-          console.log('Referral code invalid');
+          throw new HttpException(501, 'Referral code invalid');
         }
       }
 

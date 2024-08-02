@@ -21,6 +21,7 @@ import InnerForm from './components/innerForm';
 import instance from '@/utils/axiosIntance';
 import PageWrapper from '../global/component/pageWrapper';
 import Link from 'next/link';
+import { AxiosError } from 'axios';
 
 const registerSchema = Yup.object().shape({
   email: Yup.string()
@@ -86,7 +87,10 @@ export default function RegisterView() {
       });
       alert(data?.message);
     } catch (err) {
-      console.log(err);
+      if (err instanceof AxiosError) {
+        alert(err.response?.data.message);
+      }
+      router.push('/register');
     }
   }
 

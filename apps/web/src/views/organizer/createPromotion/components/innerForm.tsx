@@ -281,18 +281,18 @@ export default function InnerForm(props: FormikProps<CreatePromotionsValues>) {
                   />
                 </Stack>
               ))}
+              <Button
+                type="submit"
+                variant="contained"
+                color="primary"
+                disabled={isSubmitting}
+                sx={{ marginTop: '15px', marginBottom: '15px' }}
+              >
+                Submit
+              </Button>
             </Box>
           )}
         </FieldArray>
-        <Button
-          type="submit"
-          variant="contained"
-          color="primary"
-          disabled={isSubmitting}
-          sx={{ marginTop: '15px', marginBottom: '15px' }}
-        >
-          Submit
-        </Button>
       </Form>
     </Box>
   );

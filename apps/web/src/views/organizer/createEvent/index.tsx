@@ -26,6 +26,7 @@ import {
 import InnerForm from './components/innerForm';
 import instance from '@/utils/axiosIntance';
 import PageWrapper from '@/views/global/component/pageWrapper';
+import { AxiosError } from 'axios';
 
 const registerSchema = Yup.object().shape({
   name: Yup.string().required('Name is required'),
@@ -105,7 +106,10 @@ export default function CreateEventView() {
       alert(data?.message);
       return data?.data.id;
     } catch (err) {
-      console.log(err);
+      if (err instanceof AxiosError) {
+        alert(err.response?.data.message);
+        router.push(`/organizer/create-event/`);
+      }
     }
   }
 
@@ -151,8 +155,9 @@ export default function CreateEventView() {
         seatCategories,
       });
       resetForm();
-      console.log(id);
-      router.push(`/organizer/create-event/promotion/${id}`);
+      if (id !== undefined) {
+        router.push(`/organizer/create-event/promotion/${id}`);
+      }
     },
   })(InnerForm);
 

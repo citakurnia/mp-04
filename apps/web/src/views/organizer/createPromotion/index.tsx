@@ -6,7 +6,7 @@ import instance from '@/utils/axiosIntance';
 import { useEffect, useState } from 'react';
 import { EventProps } from '../types';
 import { useRouter } from 'next/navigation';
-import { Box, Container, Stack, Typography } from '@mui/material';
+import { Box, Button, Container, Stack, Typography } from '@mui/material';
 import PageWrapper from '@/views/global/component/pageWrapper';
 import {
   CreatePromotionsProps,
@@ -81,18 +81,12 @@ export default function CreatePromotionView({ eventId }: { eventId: string }) {
       );
 
       alert(data?.message);
+      return data?.data;
     } catch (error) {
-      let errorMessage = 'An unexpected error occurred';
-
-      if (axios.isAxiosError(error)) {
-        if (error.response) {
-          errorMessage =
-            error.response.data.message || 'Server responded with an error';
-        } else if (error.request) {
-          errorMessage = 'No response received from server';
-        }
+      if (error instanceof AxiosError) {
+        alert(error.response?.data.message);
+        router.push(`/organizer/create-event/promotion/${eventId}`);
       }
-      console.log(errorMessage);
     }
   }
 
@@ -121,9 +115,11 @@ export default function CreatePromotionView({ eventId }: { eventId: string }) {
     validationSchema: promotionsSchema,
     enableReinitialize: true,
     async handleSubmit(values: CreatePromotionsValues, { resetForm }) {
-      await createPromotions({ promotions: values.promotions });
+      const result = await createPromotions({ promotions: values.promotions });
       resetForm();
-      router.push('/organizer/dashboard');
+      if (result !== undefined) {
+        router.push(`/organizer/dashboard/event-details/${eventId}`);
+      }
     },
   })(InnerForm);
 
@@ -157,7 +153,7 @@ export default function CreatePromotionView({ eventId }: { eventId: string }) {
           >
             <Stack
               direction="column"
-              spacing={3}
+              spacing={2}
               alignItems="center"
               justifyContent="center"
             >
@@ -171,6 +167,13 @@ export default function CreatePromotionView({ eventId }: { eventId: string }) {
                 Create Promotion
               </Typography>
               <CreateEventForm {...promotionsProps} />
+              <Button
+                onClick={() => {
+                  router.push(`/organizer/dashboard/event-details/${eventId}`);
+                }}
+              >
+                I don't want to create promotion
+              </Button>
             </Stack>
           </Box>
         </Box>
