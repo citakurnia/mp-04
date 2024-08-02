@@ -6,6 +6,7 @@ import {
 import prisma from '@/prisma';
 import { SeatCategory, Ticket, Transaction } from '@prisma/client';
 import eventQuery from './eventQuery';
+import { format, startOfWeek, endOfWeek, startOfYear } from 'date-fns';
 
 class OrderQuery {
   public async getTicketPerSeatCategoryByEventId(
@@ -188,6 +189,120 @@ class OrderQuery {
         'Unable to get all transactions for the user',
       );
     }
+  }
+
+  public async getAggregatedDataTransaction(period: string, userId: number) {
+    const formatDate = (date: Date, period: string) => {
+      switch (period) {
+        case 'daily':
+          return format(date, 'MM-dd');
+        case 'weekly':
+          return (
+            format(startOfWeek(date, { weekStartsOn: 1 }), 'MM-dd') +
+            ' to ' +
+            format(endOfWeek(date, { weekStartsOn: 1 }), 'MM-dd')
+          );
+        case 'yearly':
+          return format(startOfYear(date), 'yyyy');
+        default:
+          throw new Error('Invalid period');
+      }
+    };
+    console.log(period);
+
+    // Retrieve all transactions
+    const transactions = await prisma.transaction.findMany({
+      where: {
+        tickets: {
+          some: {
+            seatCategory: {
+              eventId: {
+                in: (
+                  await prisma.event.findMany({
+                    where: {
+                      organizerId: userId,
+                    },
+                    select: {
+                      id: true,
+                    },
+                  })
+                ).map((event) => event.id),
+              },
+            },
+          },
+        },
+      },
+      include: {
+        tickets: {
+          include: {
+            seatCategory: {
+              select: {
+                eventId: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    const aggregatedData: {
+      [key: string]: { totalAmount: number; totalTransactions: number };
+    } = {};
+
+    transactions.forEach((transaction) => {
+      const date = new Date(transaction.createdAt);
+      let periodKey: string;
+
+      switch (period) {
+        case 'daily':
+          periodKey = formatDate(date, 'daily');
+          break;
+        case 'weekly':
+          periodKey = formatDate(date, 'weekly');
+          break;
+        case 'yearly':
+          periodKey = formatDate(date, 'yearly');
+          break;
+        default:
+          throw new Error('Invalid period');
+      }
+
+      if (!aggregatedData[periodKey]) {
+        aggregatedData[periodKey] = { totalAmount: 0, totalTransactions: 0 };
+      }
+
+      aggregatedData[periodKey].totalAmount += transaction.paidAmount;
+      aggregatedData[periodKey].totalTransactions += 1;
+    });
+
+    const labels = Object.keys(aggregatedData);
+    const dataAmount = labels.map((label) => aggregatedData[label].totalAmount);
+    const dataCount = labels.map(
+      (label) => aggregatedData[label].totalTransactions,
+    );
+
+    return {
+      totalAmount: {
+        labels,
+        datasets: [
+          {
+            label: 'Total Amount',
+            data: dataAmount,
+            backgroundColor: 'rgba(255, 99, 132, 0.5)',
+          },
+        ],
+      },
+      totalTransactions: {
+        labels,
+        datasets: [
+          {
+            label: 'Total Transactions',
+            data: dataCount,
+            backgroundColor: 'rgba(54, 162, 235, 0.5)',
+          },
+        ],
+      },
+    };
   }
 }
 

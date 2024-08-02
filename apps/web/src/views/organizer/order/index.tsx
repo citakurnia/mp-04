@@ -179,93 +179,95 @@ export default function OrderView() {
               ))}
             </Select>
           </FormControl>
-          <Paper
-            sx={{
-              width: '100%',
-              overflow: 'hidden',
-            }}
-          >
-            <TableContainer sx={{ maxHeight: '100%' }}>
-              <Table stickyHeader aria-label="sticky table">
-                <TableHead>
-                  <TableRow>
-                    {columns.map((column) => (
-                      <TableCell
-                        sx={{
-                          backgroundColor: 'secondary.main',
-                          fontWeight: '600',
-                        }}
-                        key={column.id}
-                        align={column.align}
-                        style={{ minWidth: column.minWidth }}
-                      >
-                        {column.label}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {data.map((item) => (
-                    <TableRow
-                      hover
-                      role="checkbox"
-                      tabIndex={-1}
-                      key={item.transaction.id}
-                    >
-                      <TableCell align="center">{item.eventId}</TableCell>
-                      <TableCell align="center">
-                        {item.transaction.id}
-                      </TableCell>
-                      <TableCell align="left">
-                        {item.transaction.payer.email}
-                      </TableCell>
-                      <TableCell align="center">
-                        {item.transaction.paidAmount}
-                      </TableCell>
-                      <TableCell align="center">
-                        {item.transaction.status === 'COMPLETED' ? (
-                          <Box
-                            sx={{
-                              backgroundColor: 'lightblue',
-                              borderRadius: '20px',
-                              padding: '1px',
-                            }}
-                          >
-                            {item.transaction.status}
-                          </Box>
-                        ) : (
-                          <Box
-                            sx={{
-                              backgroundColor: 'primary.light',
-                              borderRadius: '20px',
-                              padding: '1px',
-                            }}
-                          >
-                            {item.transaction.status}
-                          </Box>
-                        )}
-                      </TableCell>
-                      <TableCell align="center">
-                        {moment(item.transaction.createdAt).format('L')}
-                      </TableCell>
-                      <TableCell align="center">
-                        {moment(item.transaction.createdAt).format('LT')}
-                      </TableCell>
+          <Box padding={2} paddingTop={0}>
+            <Paper
+              sx={{
+                width: '100%',
+                overflow: 'hidden',
+              }}
+            >
+              <TableContainer sx={{ maxHeight: '100%' }}>
+                <Table stickyHeader aria-label="sticky table">
+                  <TableHead>
+                    <TableRow>
+                      {columns.map((column) => (
+                        <TableCell
+                          sx={{
+                            backgroundColor: 'secondary.main',
+                            fontWeight: '600',
+                          }}
+                          key={column.id}
+                          align={column.align}
+                          style={{ minWidth: column.minWidth }}
+                        >
+                          {column.label}
+                        </TableCell>
+                      ))}
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-            <TablePagination
-              rowsPerPageOptions={[10, 25, 50]}
-              component="div"
-              count={-1}
-              rowsPerPage={pageSize}
-              page={page}
-              onPageChange={handleChangePage}
-              onRowsPerPageChange={handleChangeRowsPerPage}
-            />
-          </Paper>
+                  </TableHead>
+                  <TableBody>
+                    {data.map((item) => (
+                      <TableRow
+                        hover
+                        role="checkbox"
+                        tabIndex={-1}
+                        key={item.transaction.id}
+                      >
+                        <TableCell align="center">{item.eventId}</TableCell>
+                        <TableCell align="center">
+                          {item.transaction.id}
+                        </TableCell>
+                        <TableCell align="left">
+                          {item.transaction.payer.email}
+                        </TableCell>
+                        <TableCell align="center">
+                          {item.transaction.paidAmount}
+                        </TableCell>
+                        <TableCell align="center">
+                          {item.transaction.status === 'COMPLETED' ? (
+                            <Box
+                              sx={{
+                                backgroundColor: 'lightblue',
+                                borderRadius: '20px',
+                                padding: '1px',
+                              }}
+                            >
+                              {item.transaction.status}
+                            </Box>
+                          ) : (
+                            <Box
+                              sx={{
+                                backgroundColor: 'primary.light',
+                                borderRadius: '20px',
+                                padding: '1px',
+                              }}
+                            >
+                              {item.transaction.status}
+                            </Box>
+                          )}
+                        </TableCell>
+                        <TableCell align="center">
+                          {moment(item.transaction.createdAt).format('L')}
+                        </TableCell>
+                        <TableCell align="center">
+                          {moment(item.transaction.createdAt).format('LT')}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+              <TablePagination
+                rowsPerPageOptions={[10, 25, 50]}
+                component="div"
+                count={-1}
+                rowsPerPage={pageSize}
+                page={page}
+                onPageChange={handleChangePage}
+                onRowsPerPageChange={handleChangeRowsPerPage}
+              />
+            </Paper>
+          </Box>
         </Box>
       </DashboardPageWrapper>
     </PageWrapper>

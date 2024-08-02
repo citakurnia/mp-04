@@ -75,6 +75,19 @@ class OrderAction {
       throw err;
     }
   }
+
+  public async getAggregatedTransactions(period: string, userId: number) {
+    try {
+      const result = await orderQuery.getAggregatedDataTransaction(
+        period,
+        userId,
+      );
+
+      return result;
+    } catch (err) {
+      throw err;
+    }
+  }
 }
 
 export default new OrderAction();

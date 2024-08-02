@@ -42,5 +42,11 @@ export class OrderRoute implements RouteItems {
       authorizeOrganizerRole,
       this.order.getEventTransactions,
     );
+    this.router.get(
+      `${this.path}/transactions/aggregate/:period`,
+      authenticateToken,
+      authorizeOrganizerRole,
+      this.order.getAggregatedTransactionsUser,
+    );
   }
 }

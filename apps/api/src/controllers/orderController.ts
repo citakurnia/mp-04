@@ -96,4 +96,28 @@ export class OrderController {
       next(err);
     }
   }
+
+  public async getAggregatedTransactionsUser(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
+    try {
+      const { id } = req.user as User;
+      const { period } = req.params;
+
+      const result = await orderAction.getAggregatedTransactions(
+        String(period),
+        id,
+      );
+      console.log('hai');
+
+      res.status(200).json({
+        message: `Get all transaction for ${period} success`,
+        data: result,
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
 }
