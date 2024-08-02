@@ -60,7 +60,7 @@ function Navbar() {
   };
 
   const participantMenuItems = [
-    { name: 'Point', href: '/point' },
+    { name: 'Reward', href: '/reward' },
     { name: 'Ticket', href: '/ticket' },
     { name: 'Order', href: '/order' },
     { name: 'Account', href: '/account' },
@@ -69,8 +69,8 @@ function Navbar() {
   const organizerMenuItems = [
     { name: 'Create Event', href: '/organizer/create-event' },
     { name: 'My Event', href: '/organizer/dashboard' },
-    { name: 'Order', href: '/organizer/dashboard/orders' },
-    { name: 'Report', href: '/organizer/dashboard/reports' },
+    { name: 'Order', href: '/organizer/dashboard/order' },
+    { name: 'Report', href: '/organizer/dashboard/report' },
     { name: 'Account', href: '/account' },
   ];
 

@@ -5,6 +5,7 @@ import StoreProvider from './StoreProvider';
 
 import { ThemeProvider } from '@mui/material/styles';
 import theme from '@/theme/theme';
+import AuthProvider from '@/_provider/authProvider';
 
 export const lato = Lato({
   subsets: ['latin'],
@@ -25,7 +26,11 @@ export default function RootLayout({
     <html lang="en">
       <body className={lato.className}>
         <ThemeProvider theme={theme}>
-          <StoreProvider>{children}</StoreProvider>
+          <StoreProvider>
+            {/* <AuthProvider> */}
+            {children}
+            {/* </AuthProvider> */}
+          </StoreProvider>
         </ThemeProvider>
       </body>
     </html>

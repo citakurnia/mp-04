@@ -4,10 +4,12 @@ import instance from './utils/axiosIntance';
 import { User } from './interfaces/userInterface';
 import { Role } from './views/register/types';
 import parseJWT from './utils/parseJwt';
+import { deleteCookie } from 'cookies-next';
 
 export async function middleware(request: NextRequest) {
   const { pathname }: { pathname: string } = request.nextUrl;
   const token = request.cookies.get('refresh-token')?.value;
+  console.log(`token: ${token}`);
   const response = NextResponse.next();
 
   function redirectUser(role: string) {
@@ -18,6 +20,8 @@ export async function middleware(request: NextRequest) {
         new URL('/organizer/dashboard', request.url),
       );
     } else {
+      deleteCookie('access-token');
+      deleteCookie('refresh-token');
       return NextResponse.redirect(new URL('/login', request.url));
     }
   }
@@ -36,7 +40,6 @@ export async function middleware(request: NextRequest) {
       // set new access-token upon web refresh
       response.cookies.set('access-token', res.data.access_token, {
         httpOnly: false,
-        maxAge: 60 * 60,
       });
     } catch (err) {
       if (err instanceof AxiosError) {
@@ -45,6 +48,7 @@ export async function middleware(request: NextRequest) {
           err.response?.data || err.message,
         );
       }
+      console.log(err);
     }
 
     const user: User = parseJWT(token);
@@ -56,8 +60,13 @@ export async function middleware(request: NextRequest) {
 
     return response;
   } else if (pathname.startsWith('/organizer') && token == undefined) {
-    // console.log('No user logged');
-    return NextResponse.redirect(new URL('/login', request.url));
+    const responseWithClearCookies = NextResponse.redirect(
+      new URL('/login', request.url),
+    );
+    responseWithClearCookies.cookies.delete('refresh-token');
+    responseWithClearCookies.cookies.delete('access-token');
+
+    return responseWithClearCookies;
   }
 }
 

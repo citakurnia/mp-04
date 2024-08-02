@@ -26,8 +26,7 @@ import {
 import InnerForm from './components/innerForm';
 import instance from '@/utils/axiosIntance';
 import PageWrapper from '@/views/global/component/pageWrapper';
-import { keepLogin } from '@/_middlewares/authMiddleware';
-import { useAppDispatch } from '@/libs/hooks';
+import { AxiosError } from 'axios';
 
 const registerSchema = Yup.object().shape({
   name: Yup.string().required('Name is required'),
@@ -54,18 +53,18 @@ const VisuallyHiddenInput = styled('input')({
 });
 
 export default function CreateEventView() {
-  const dispatch = useAppDispatch();
   const [files, setFiles] = useState<File | null>(null);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const router = useRouter();
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
-    const loginUser = async () => {
-      await keepLogin()(dispatch);
-    };
-
-    loginUser();
+    setIsMounted(true);
   });
+
+  if (!isMounted) {
+    return null;
+  }
 
   function uploader(event: React.ChangeEvent<HTMLInputElement>) {
     if (event.target.files && event.target.files[0]) {
@@ -105,8 +104,12 @@ export default function CreateEventView() {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       alert(data?.message);
+      return data?.data.id;
     } catch (err) {
-      console.log(err);
+      if (err instanceof AxiosError) {
+        alert(err.response?.data.message);
+        router.push(`/organizer/create-event/`);
+      }
     }
   }
 
@@ -126,7 +129,7 @@ export default function CreateEventView() {
     }),
     validationSchema: registerSchema,
     enableReinitialize: true,
-    handleSubmit(
+    async handleSubmit(
       {
         name,
         type,
@@ -140,7 +143,7 @@ export default function CreateEventView() {
       }: CreateFormValues,
       { resetForm },
     ) {
-      createEvent({
+      const id = await createEvent({
         name,
         type,
         categoryId,
@@ -152,7 +155,9 @@ export default function CreateEventView() {
         seatCategories,
       });
       resetForm();
-      router.push('/organizer');
+      if (id !== undefined) {
+        router.push(`/organizer/create-event/promotion/${id}`);
+      }
     },
   })(InnerForm);
 

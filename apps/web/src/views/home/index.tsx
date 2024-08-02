@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Box, Container, Typography, Stack } from '@mui/material';
 
 import { useAppDispatch, useAppSelector } from '@/libs/hooks';
@@ -8,38 +8,34 @@ import { keepLogin } from '@/_middlewares/authMiddleware';
 import PageWrapper from '../global/component/pageWrapper';
 
 const HomeView = () => {
-  const dispatch = useAppDispatch();
   const { status, user } = useAppSelector((state) => state.auth);
-
-  useEffect(() => {
-    const loginUser = async () => {
-      await keepLogin()(dispatch);
-    };
-
-    loginUser();
-  });
+  const [isMounted, setIsMounted] = useState(false);
 
   const avatarUrl = `${process.env.IMAGE_URL}/avatars/${user.avatar}`;
 
+  useEffect(() => {
+    setIsMounted(true);
+  });
+
+  if (!isMounted) {
+    return null;
+  }
   return (
-    <PageWrapper>
+    <PageWrapper sx={{ backgroundColor: 'primary.main' }}>
       <Container>
         <Box
           sx={{
             marginTop: '1rem',
             padding: '1rem',
+            backgroundColor: 'secondary.light',
+            borderRadius: '20px',
           }}
         >
           <Typography sx={{ textAlign: 'start' }}>
             {status.isLogin
-              ? `Welcome back ${user.firstname} ${user.lastname}`
+              ? `Welcome back, ${user.firstname} ${user.lastname}`
               : ''}
           </Typography>
-          {user.avatar && status.isLogin && (
-            <Box>
-              <img width="420px" height="240px" src={avatarUrl} />
-            </Box>
-          )}
         </Box>
         <Box
           display="flex"
@@ -47,11 +43,13 @@ const HomeView = () => {
             marginTop: '1rem',
             padding: '1rem',
             justifyContent: 'center',
+            backgroundColor: 'secondary.light',
+            borderRadius: '20px',
           }}
         >
           <Stack spacing={8}>
-            <Typography variant="h4" sx={{ textAlign: 'end' }}>
-              Landing page
+            <Typography variant="h5" fontWeight={700}>
+              Find your desired event here!
             </Typography>
           </Stack>
         </Box>

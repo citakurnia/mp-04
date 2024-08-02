@@ -1,8 +1,8 @@
 import { $Enums } from '@prisma/client';
 
 export interface PromotionCreateItems {
-  organizerId: number;
-  eventId: number;
+  // organizerId: number;
+  // eventId: number;
   name: string;
   description: string;
   startedAt: Date;

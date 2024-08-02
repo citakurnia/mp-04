@@ -10,7 +10,6 @@ export async function authenticateToken(
   next: NextFunction,
 ): Promise<void> {
   try {
-    // console.log('hai');
     const token = req.header('Authorization')?.replace('Bearer ', '');
 
     if (token == undefined) {

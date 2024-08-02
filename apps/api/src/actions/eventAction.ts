@@ -93,6 +93,11 @@ class EventAction {
     userId: number,
   ): Promise<Array<Promotion>> {
     try {
+      const promotionIds = await eventQuery.checkPromotionsByEventId(eventId);
+      if (promotionIds.length > 0) {
+        throw new HttpException(503, 'This event already have promotion');
+      }
+
       const result = await eventQuery.createPromotions(
         promotions,
         eventId,

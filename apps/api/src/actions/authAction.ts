@@ -51,7 +51,7 @@ class AuthAction {
           );
           queryInput.referrerId = referrerId;
         } catch (err) {
-          console.log('Referral code invalid');
+          throw new HttpException(501, 'Referral code invalid');
         }
       }
 
@@ -89,6 +89,7 @@ class AuthAction {
         isVerified: findUser.isVerified,
         role: findUser.role,
         avatar: findUser.avatarFilename,
+        referral: findUser.referral,
       };
 
       const token = sign(payload, String(API_KEY), { expiresIn: '1hr' });
@@ -115,6 +116,7 @@ class AuthAction {
         isVerified: findUser.isVerified,
         role: findUser.role,
         avatar: findUser.avatarFilename,
+        referral: findUser.referral,
       };
 
       const token = sign(payload, String(API_KEY), { expiresIn: '1hr' });

@@ -1,5 +1,6 @@
 import { EventController } from '@/controllers/eventController';
 import { uploader } from '@/libs/uploader';
+import { upload } from '@/libs/uploader';
 import { authenticateToken } from '@/middlewares/auth/authenticateToken';
 import { authorizeOrganizerRole } from '@/middlewares/auth/authorizeOrganizer';
 import { Router } from 'express';
@@ -29,6 +30,7 @@ export class EventRoute implements RouteItems {
     // create promotion for particular event
     this.router.post(
       `${this.path}/promotion/:eventId`,
+      upload.none(),
       authenticateToken,
       authorizeOrganizerRole,
       this.event.createPromotions,
@@ -42,8 +44,8 @@ export class EventRoute implements RouteItems {
       authorizeOrganizerRole,
       this.event.getEvents,
     );
-    // single event details
-    this.router.get(`${this.path}/:eventId`, this.event.getEvent);
+    // single event details for front-end
+    this.router.get(`${this.path}/detail/:eventId`, this.event.getEvent);
     this.router.delete(`${this.path}/:eventId`);
   }
 }
