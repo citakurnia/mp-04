@@ -14,4 +14,5 @@ export type User = {
   isVerified: boolean;
   role: Role;
   avatar: string;
+  referral: string;
 };

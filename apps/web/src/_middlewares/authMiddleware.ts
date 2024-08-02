@@ -4,9 +4,7 @@ import parseJWT from '@/utils/parseJwt';
 import instance from '@/utils/axiosIntance';
 import { deleteCookie, getCookie } from 'cookies-next';
 import { loginState, logoutState } from '@/libs/features/auth/authSlice';
-import { HttpException } from '@/libs/httpException';
 import { AxiosError } from 'axios';
-import { Role } from '@/views/register/types';
 
 export const login = ({ email, password }: IUsers) => {
   return async (dispatch: Dispatch) => {
